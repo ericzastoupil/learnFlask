@@ -1,0 +1,4 @@
+This repo is based off the "The Flask Mega-Tutorial" on blog.miguelgrinberg.com
+
+To activate virtual environment
+#source venv/bin/activate

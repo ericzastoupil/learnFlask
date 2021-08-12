@@ -1,0 +1,7 @@
+.flaskenv
+venv/
+__pycache__
+app/__pycache__
+migrations/__pycache__
+migrations/versions/
+logs/
