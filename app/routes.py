@@ -1,3 +1,4 @@
+from re import L
 from app import app, db
 from flask import render_template, flash, redirect, url_for, request
 from app.forms import LoginForm, PostForm, RegistrationForm, EditProfileForm, EmptyForm
@@ -7,8 +8,8 @@ from werkzeug.urls import url_parse
 from datetime import datetime
 
 #main page, or "index"
-@app.route('/')
-@app.route('/index')
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
     form = PostForm()
@@ -20,7 +21,7 @@ def index():
         return redirect(url_for('index'))
 
     posts = current_user.followed_posts().all()
-    return render_template('index.html', title='Home', form=form, posts=posts)
+    return render_template('index.html', title='Home Page', form=form, posts=posts)
 
 #Logs users in
 @app.route('/login', methods=['GET', 'POST'])
@@ -140,3 +141,9 @@ def unfollow(username):
         return redirect(url_for('user', username=username))
     else:
         return redirect(url_for('index'))
+
+@app.route('/explore')
+@login_required
+def explore():
+    posts = Post.query.order_by(Post.timestamp.desc()).all()
+    return render_template('index.html', title='Explore', posts=posts)
