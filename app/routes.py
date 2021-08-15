@@ -20,8 +20,9 @@ def index():
         flash('Your post is now live!')
         return redirect(url_for('index'))
 
-    posts = current_user.followed_posts().all()
-    return render_template('index.html', title='Home Page', form=form, posts=posts)
+    page = request.args.get('page', 1, type=int)
+    posts = current_user.followed_posts().paginate(page, app.config['POSTS_PER_PAGE'], False)
+    return render_template('index.html', title='Home Page', form=form, posts=posts.items)
 
 #Logs users in
 @app.route('/login', methods=['GET', 'POST'])
@@ -87,6 +88,7 @@ def before_request():
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
 
+#allows users to edit details of their profile
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
@@ -102,6 +104,7 @@ def edit_profile():
         form.about_me.data == current_user.about_me
     return render_template('edit_profile.html', title='Edit Profile', form=form)
 
+#allows users to follow other users
 @app.route('/follow/<username>', methods=['POST'])
 @login_required
 def follow(username):
@@ -122,6 +125,7 @@ def follow(username):
     else:
         return redirect('index')
 
+#allows users to follow other users
 @app.route('/unfollow/<username>', methods=['POST'])
 @login_required
 def unfollow(username):
@@ -142,8 +146,10 @@ def unfollow(username):
     else:
         return redirect(url_for('index'))
 
+#allows users to discover other users
 @app.route('/explore')
 @login_required
 def explore():
-    posts = Post.query.order_by(Post.timestamp.desc()).all()
-    return render_template('index.html', title='Explore', posts=posts)
+    page = request.args.get('page', 1, type=int)
+    posts = Post.query.order_by(Post.timestamp.desc()).paginate(page, app.config['POSTS_PER_PAGE'], False)
+    return render_template('index.html', title='Explore', posts=posts.items)
